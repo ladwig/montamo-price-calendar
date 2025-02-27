@@ -6,6 +6,7 @@ import Header from './components/Header';
 import CustomerMessage from './components/CustomerMessage';
 import PriceCalendar from './components/PriceCalendar';
 import Footer from './components/Footer';
+import Spinner from './components/Spinner';
 import { fetchProjectData } from './lib/api';
 import { handleCustomToken, auth } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -18,50 +19,62 @@ function HomeContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // User is already signed in
-        setIsAuthenticated(true);
-        try {
-          const idToken = await user.getIdToken();
-          const data = await fetchProjectData(idToken);
-          setProjectData(data);
-        } catch (error) {
-          console.error('Error fetching project data:', error);
-          setError('Failed to load project data. Please try again.');
-        }
-      } else {
-        // No user is signed in, try to sign in with token from URL
+      try {
+        // Always check for a new token in URL first
         const token = searchParams.get('token');
         if (token) {
           try {
+            // If there's a new token, try to use it
             const idToken = await handleCustomToken(token);
             setIsAuthenticated(true);
             const data = await fetchProjectData(idToken);
             setProjectData(data);
-          } catch (error) {
-            console.error('Authentication error:', error);
-            setError('Failed to authenticate. Please check your access link.');
+          } catch (tokenError) {
+            console.error('Error with new token:', tokenError);
+            // If token fails and we have an existing session, use that instead
+            if (user) {
+              console.log('Falling back to existing session');
+              setIsAuthenticated(true);
+              const idToken = await user.getIdToken();
+              const data = await fetchProjectData(idToken);
+              setProjectData(data);
+            } else {
+              throw tokenError; // Re-throw if we have no fallback
+            }
           }
+        } else if (user) {
+          // No new token but user is signed in
+          setIsAuthenticated(true);
+          const idToken = await user.getIdToken();
+          const data = await fetchProjectData(idToken);
+          setProjectData(data);
         }
+      } catch (error) {
+        console.error('Authentication error:', error);
+        setError('Failed to authenticate. Please check your access link.');
+        if (!user) {
+          // Only clear auth state if we don't have a valid session
+          setIsAuthenticated(false);
+          setProjectData(null);
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    // Cleanup subscription
     return () => unsubscribe();
   }, [searchParams]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-secondary">Lade Projektdaten...</div>
+        <Spinner />
       </div>
     );
   }
 
-  if (error) {
+  if (error && !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-danger text-center max-w-md mx-auto p-4">
@@ -110,7 +123,7 @@ export default function Home() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-secondary">Lade...</div>
+        <Spinner />
       </div>
     }>
       <HomeContent />

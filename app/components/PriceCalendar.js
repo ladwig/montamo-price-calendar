@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 // import { Calendar } from './ui/calendar';  // Commented out for now
 import WeekCardsView from './WeekCardsView';
 import SelectedWeekSection from './SelectedWeekSection';
+import Spinner from './Spinner';
 import { calculatePrice } from '../utils/priceCalculations';
 
 export default function PriceCalendar({ basePrice, isAuthenticated }) {
@@ -49,7 +50,7 @@ export default function PriceCalendar({ basePrice, isAuthenticated }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-secondary">Lade Preiskalender...</div>
+        <Spinner />
       </div>
     );
   }
