@@ -22,6 +22,9 @@ module.exports = {
         'xl': '0.75rem',
         '2xl': '1rem',
       },
+      gridTemplateColumns: {
+        '13': 'repeat(13, minmax(0, 1fr))',
+      },
     },
   },
   plugins: [],

@@ -74,10 +74,10 @@ export default function WeekCardsView({ priceMatrix, disabledWeeks, basePrice, o
   const weeks = Object.keys(priceMatrix).sort((a, b) => parseInt(a) - parseInt(b));
 
   return (
-    <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold text-secondary mb-6">Kalenderwochen Übersicht</h2>
+    <div className="mt-4 bg-white rounded-lg shadow-md p-4">
+      <h2 className="text-lg font-semibold text-secondary mb-3">Kalenderwochen Übersicht</h2>
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-13 gap-2">
         {weeks.map((weekNumber) => {
           const weekData = priceMatrix[weekNumber];
           const isDisabled = disabledWeeks.includes(parseInt(weekNumber));
@@ -87,37 +87,37 @@ export default function WeekCardsView({ priceMatrix, disabledWeeks, basePrice, o
             <div
               key={weekNumber}
               className={`
-                relative rounded-md p-4 border-2 transition-all cursor-pointer
+                relative rounded-md p-2 border transition-all cursor-pointer
                 ${isDisabled ? 'bg-gray-100 border-gray-200 text-disabled opacity-60 cursor-not-allowed' : 
-                  isSelected ? 'bg-white border-primary text-secondary shadow-md' : 
+                  isSelected ? 'bg-white border-primary text-secondary shadow-sm' : 
                   getBackgroundColorClass(weekData.status)}
-                ${!isDisabled && !isSelected ? 'hover:border-primary hover:shadow-md transform hover:-translate-y-1' : ''}
+                ${!isDisabled && !isSelected ? 'hover:border-primary hover:shadow-sm' : ''}
               `}
               onClick={() => handleWeekSelect(weekNumber)}
               onMouseEnter={() => setHoveredWeek(weekNumber)}
               onMouseLeave={() => setHoveredWeek(null)}
             >
-              <div className="text-center font-semibold text-lg">KW {weekNumber}</div>
+              <div className="text-center font-semibold text-sm">KW {weekNumber}</div>
               
               {!isDisabled && (
                 <>
-                  <div className="text-center text-xs mt-1">
+                  <div className="text-center text-xs mt-0.5">
                     {getPercentageIndicator(weekData.percentage)}
                   </div>
-                  <div className="text-center font-bold mt-2 text-secondary">
+                  <div className="text-center font-medium text-xs mt-1 text-secondary">
                     {calculatePrice(weekNumber)}
                   </div>
                 </>
               )}
               
               {isDisabled && (
-                <div className="text-center text-xs mt-2">
+                <div className="text-center text-xs mt-1">
                   Nicht verfügbar
                 </div>
               )}
               
               {hoveredWeek === weekNumber && !isDisabled && (
-                <div className="absolute inset-x-0 -bottom-12 bg-white border border-gray-200 rounded-md p-2 shadow-md z-10 text-xs text-center">
+                <div className="absolute inset-x-0 -bottom-8 bg-white border border-gray-200 rounded-md p-1 shadow-sm z-10 text-xs text-center">
                   {getWeekDateRange(weekData)}
                 </div>
               )}
