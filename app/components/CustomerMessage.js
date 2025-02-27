@@ -21,15 +21,10 @@ export default function CustomerMessage({ basePrice }) {
         </p>
         
         <p className="text-gray-700">
-          Die Preise für Wärmepumpen variieren je nach Saison und Verfügbarkeit. In unserem Preiskalender 
+          Die Preise für Installationen variieren je nach Saison und Verfügbarkeit. In unserem Preiskalender 
           können Sie sehen, wie sich der Preis in verschiedenen Kalenderwochen verändert.
         </p>
-        
-        <p className="text-gray-700">
-          Wählen Sie einfach Ihren gewünschten Installationszeitraum im Kalender aus. Die Preise werden für jede 
-          Kalenderwoche angezeigt. Grüne Wochen bieten günstigere Preise, gelbe Wochen Standardpreise und 
-          rote Wochen haben höhere Preise aufgrund der Hochsaison.
-        </p>
+
         
         <div className="mt-2 p-3 bg-primary/10 border border-primary rounded-md">
           <p className="text-sm font-medium text-secondary">

@@ -8,11 +8,12 @@ export default function Header({ customerName, dealId, location }) {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center">
           <Image 
-            src="/montamo-logo.svg" 
+            src="/logo.png" 
             alt="Montamo Logo" 
-            width={150} 
-            height={40} 
+            width={50} 
+            height={50} 
             priority
+            className="object-contain"
           />
         </div>
         

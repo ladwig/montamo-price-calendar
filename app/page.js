@@ -10,12 +10,12 @@ export default function Home() {
   const searchParams = useSearchParams();
   
   // Get URL parameters with default values
-  const basePrice = searchParams.get('basePrice') || '10000';
+  const basePrice = searchParams.get('basePrice') || '';
   const customerName = searchParams.get('customerName') || '';
   const dealId = searchParams.get('dealId') || '';
   const location = searchParams.get('location') || '';
 
-  // Example URL: /montamo-price-calendar/?basePrice=12500&customerName=Max%20Mustermann&dealId=WP-2023-001&location=München
+  // Example URL: /?basePrice=12500&customerName=Max%20Mustermann&dealId=WP-2023-001&location=München
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
