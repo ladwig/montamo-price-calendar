@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp, arrayUnion, updateDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { getAuth, signInWithCustomToken, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -43,7 +43,7 @@ export async function saveBooking(projectId, weekData, selectedWeek, price) {
       startDate: weekData.startDate,
       endDate: weekData.endDate,
       price: price,
-      createdAt: serverTimestamp(),
+      createdAt: new Date().toISOString(),
     };
 
     if (!bookingDoc.exists()) {
@@ -52,9 +52,13 @@ export async function saveBooking(projectId, weekData, selectedWeek, price) {
         bookings: [newBooking]
       });
     } else {
-      // Add new booking to existing array
+      // Get existing bookings and add new one
+      const existingData = bookingDoc.data();
+      const updatedBookings = [...(existingData.bookings || []), newBooking];
+      
+      // Update document with new bookings array
       await updateDoc(bookingRef, {
-        bookings: arrayUnion(newBooking)
+        bookings: updatedBookings
       });
     }
     
@@ -77,15 +81,12 @@ export async function getExistingBooking(projectId) {
       // Find the most recent valid booking
       const validBooking = bookings
         .filter(booking => {
-          const createdAt = booking.createdAt?.toDate();
-          if (createdAt) {
-            const fiveDaysAgo = new Date();
-            fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-            return createdAt > fiveDaysAgo;
-          }
-          return false;
+          const createdAt = new Date(booking.createdAt);
+          const fiveDaysAgo = new Date();
+          fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+          return createdAt > fiveDaysAgo;
         })
-        .sort((a, b) => b.createdAt?.toDate() - a.createdAt?.toDate())[0];
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
 
       return validBooking || null;
     }
