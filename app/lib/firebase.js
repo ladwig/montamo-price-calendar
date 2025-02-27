@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth, signInWithCustomToken } from 'firebase/auth';
+import { getAuth, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -19,15 +19,19 @@ const db = getFirestore(app);
 
 export async function handleMagicLink() {
   try {
-    // Get the oobCode from the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const oobCode = urlParams.get('oobCode');
-    
-    if (oobCode) {
-      // Sign in with the oobCode as a custom token
-      const userCredential = await signInWithCustomToken(auth, oobCode);
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      // Get email from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const email = urlParams.get('email');
+      
+      if (!email) {
+        throw new Error('No email provided in magic link');
+      }
+
+      // Sign in with email link
+      const result = await signInWithEmailLink(auth, email, window.location.href);
       // Get the ID token
-      const idToken = await userCredential.user.getIdToken();
+      const idToken = await result.user.getIdToken();
       return idToken;
     }
     return null;
