@@ -1,24 +1,92 @@
-@import "tailwindcss";
-
-@theme {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #012B3F;
+  --primary: #FCE100;
+  --secondary: #012B3F;
+  --success-color: 76, 175, 80;    /* RGB values for #4CAF50 */
+  --warning-color: 255, 193, 7;    /* RGB values for #FFC107 */
+  --danger-color: 244, 67, 54;     /* RGB values for #F44336 */
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
 }
+
+@layer components {
+  .calendar-week {
+    @apply rounded-md p-3 flex flex-col items-center justify-center transition-all;
+  }
+  
+  .calendar-week-success {
+    @apply bg-success/20 border border-success text-success;
+  }
+  
+  .calendar-week-warning {
+    @apply bg-warning/20 border border-warning text-warning;
+  }
+  
+  .calendar-week-danger {
+    @apply bg-danger/20 border border-danger text-danger;
+  }
+  
+  .calendar-week-disabled {
+    @apply bg-gray-100 border border-gray-200 text-disabled opacity-60;
+  }
+}
+
+/* Calendar styles */
+.calendar-day {
+  min-height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.calendar-day:hover:not(.opacity-60) {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-day-price {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 8px;
+  line-height: 1;
+  text-align: center;
+  width: 100%;
+}
+
+/* Background colors with opacity */
+.bg-success\/20 {
+  background-color: rgba(var(--success-color), 0.2);
+}
+
+.bg-warning\/20 {
+  background-color: rgba(var(--warning-color), 0.2);
+}
+
+.bg-danger\/20 {
+  background-color: rgba(var(--danger-color), 0.2);
+}
+
+.bg-success\/30 {
+  background-color: rgba(var(--success-color), 0.3);
+}
+
+.bg-warning\/30 {
+  background-color: rgba(var(--warning-color), 0.3);
+}
+
+.bg-danger\/30 {
+  background-color: rgba(var(--danger-color), 0.3);
+}
+

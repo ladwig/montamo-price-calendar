@@ -1,24 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Montamo Price Calendar
+
+A responsive price calendar application for Montamo's heat pump installations, similar to Skyscanner's flight price calendar.
+
+## Features
+
+- Simple landing page with responsive design
+- Mobile-ready interface
+- Customer information display
+- Monthly calendar view with color-coded weeks showing pricing
+- Price calculation based on base price and percentage modifiers
+- URL parameter support for customer data and base price
+
+## URL Parameters
+
+The application accepts the following URL parameters:
+
+- `basePrice`: The base price for the heat pump (default: 10000)
+- `customerName`: The name of the customer
+- `dealId`: The ID of the deal/offer
+- `location`: The location of the installation
+
+Example URL:
+```
+http://localhost:3000/?basePrice=12500&customerName=Max%20Mustermann&dealId=WP-2023-001&location=München
+```
+
+## Calendar Design
+
+The calendar displays a monthly view where:
+- Each day is color-coded based on its calendar week
+- Green weeks indicate lower prices
+- Yellow weeks indicate standard prices
+- Red weeks indicate higher prices (peak season)
+- Gray weeks are disabled/unavailable
+- The first day of each week shows the week number (KW) and the price for that week
+
+## Price Matrix
+
+The price matrix is currently defined in a JSON file (`public/price-matrix.json`). In the future, this will be fetched from an API.
+
+The matrix contains:
+- Percentage modifiers for each calendar week
+- Status indicators (success, warning, danger)
+- List of disabled weeks
 
 ## Getting Started
 
-First, run the development server:
+First, install the dependencies:
+
+```bash
+npm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Technologies Used
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js
+- React
+- Tailwind CSS
+- React Day Picker
+- date-fns
+- JavaScript
+
+## Customization
+
+The application uses Montamo's brand colors:
+- Primary: #FCE100 (Yellow)
+- Secondary: #012B3F (Dark Blue)
+
+These colors can be customized in the `tailwind.config.js` file.
 
 ## Learn More
 
