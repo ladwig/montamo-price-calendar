@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
+import { getAuth, signInWithCustomToken, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,26 +17,18 @@ let app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-export async function handleMagicLink() {
-  try {
-    if (isSignInWithEmailLink(auth, window.location.href)) {
-      // Get email from URL parameters
-      const urlParams = new URLSearchParams(window.location.search);
-      const email = urlParams.get('email');
-      
-      if (!email) {
-        throw new Error('No email provided in magic link');
-      }
+// Enable persistence
+setPersistence(auth, browserLocalPersistence);
 
-      // Sign in with email link
-      const result = await signInWithEmailLink(auth, email, window.location.href);
-      // Get the ID token
-      const idToken = await result.user.getIdToken();
-      return idToken;
-    }
-    return null;
+export async function handleCustomToken(token) {
+  try {
+    // Sign in with the custom token
+    const userCredential = await signInWithCustomToken(auth, token);
+    // Get the ID token
+    const idToken = await userCredential.user.getIdToken();
+    return idToken;
   } catch (error) {
-    console.error('Error handling magic link:', error);
+    console.error('Error signing in with custom token:', error);
     throw error;
   }
 }

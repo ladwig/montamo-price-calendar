@@ -7,7 +7,8 @@ import CustomerMessage from './components/CustomerMessage';
 import PriceCalendar from './components/PriceCalendar';
 import Footer from './components/Footer';
 import { fetchProjectData } from './lib/api';
-import { handleMagicLink } from './lib/firebase';
+import { handleCustomToken, auth } from './lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -17,40 +18,39 @@ function HomeContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    async function handleAuth() {
-      try {
-        // Check for oobCode in URL and get Firebase ID token
-        const oobCode = searchParams.get('oobCode');
-        if (oobCode) {
-          const firebaseToken = await handleMagicLink();
-          if (firebaseToken) {
+    // Listen for auth state changes
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is already signed in
+        setIsAuthenticated(true);
+        try {
+          const idToken = await user.getIdToken();
+          const data = await fetchProjectData(idToken);
+          setProjectData(data);
+        } catch (error) {
+          console.error('Error fetching project data:', error);
+          setError('Failed to load project data. Please try again.');
+        }
+      } else {
+        // No user is signed in, try to sign in with token from URL
+        const token = searchParams.get('token');
+        if (token) {
+          try {
+            const idToken = await handleCustomToken(token);
             setIsAuthenticated(true);
-            const data = await fetchProjectData(firebaseToken);
+            const data = await fetchProjectData(idToken);
             setProjectData(data);
-            return;
+          } catch (error) {
+            console.error('Authentication error:', error);
+            setError('Failed to authenticate. Please check your access link.');
           }
         }
-
-        // If no oobCode or Firebase auth failed, check for direct token
-        const token = searchParams.get('token');
-        setIsAuthenticated(!!token);
-        
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const data = await fetchProjectData(token);
-        setProjectData(data);
-      } catch (error) {
-        console.error('Authentication error:', error);
-        setError('Failed to load project data. Please check your authentication link.');
-      } finally {
-        setLoading(false);
       }
-    }
+      setLoading(false);
+    });
 
-    handleAuth();
+    // Cleanup subscription
+    return () => unsubscribe();
   }, [searchParams]);
 
   if (loading) {
