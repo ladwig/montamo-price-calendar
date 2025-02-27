@@ -24,16 +24,19 @@ function HomeContent() {
   useEffect(() => {
     async function handleAuth() {
       try {
-        // First, check if we're in the magic link flow
-        const magicLinkToken = await handleMagicLink();
-        if (magicLinkToken) {
-          setIsAuthenticated(true);
-          const data = await fetchProjectData(magicLinkToken);
-          setProjectData(data);
-          return;
+        // Check for oobCode in URL and get Firebase ID token
+        const oobCode = searchParams.get('oobCode');
+        if (oobCode) {
+          const firebaseToken = await handleMagicLink();
+          if (firebaseToken) {
+            setIsAuthenticated(true);
+            const data = await fetchProjectData(firebaseToken);
+            setProjectData(data);
+            return;
+          }
         }
 
-        // If not magic link, check for direct token
+        // If no oobCode or Firebase auth failed, check for direct token
         const token = searchParams.get('token');
         setIsAuthenticated(!!token);
         

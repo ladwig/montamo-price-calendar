@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getAuth, signInWithCustomToken } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -22,14 +22,13 @@ export async function handleMagicLink() {
     // Get the oobCode from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const oobCode = urlParams.get('oobCode');
-    const continueUrl = urlParams.get('continueUrl');
     
-    if (oobCode && continueUrl) {
-      // Redirect to the continue URL with the oobCode as the token
-      const redirectUrl = new URL(continueUrl);
-      redirectUrl.searchParams.set('token', oobCode);
-      window.location.href = redirectUrl.toString();
-      return oobCode;
+    if (oobCode) {
+      // Sign in with the oobCode as a custom token
+      const userCredential = await signInWithCustomToken(auth, oobCode);
+      // Get the ID token
+      const idToken = await userCredential.user.getIdToken();
+      return idToken;
     }
     return null;
   } catch (error) {
