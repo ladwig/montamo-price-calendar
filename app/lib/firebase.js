@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp, arrayUnion, updateDoc } from 'firebase/firestore';
 import { getAuth, signInWithCustomToken, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -36,14 +36,29 @@ export async function handleCustomToken(token) {
 export async function saveBooking(projectId, weekData, selectedWeek, price) {
   try {
     const bookingRef = doc(db, 'price-calendar-bookings', projectId);
-    await setDoc(bookingRef, {
+    const bookingDoc = await getDoc(bookingRef);
+    
+    const newBooking = {
       weekNumber: selectedWeek,
       startDate: weekData.startDate,
       endDate: weekData.endDate,
       price: price,
       createdAt: serverTimestamp(),
-    });
-    return true;
+    };
+
+    if (!bookingDoc.exists()) {
+      // Create new document with bookings array
+      await setDoc(bookingRef, {
+        bookings: [newBooking]
+      });
+    } else {
+      // Add new booking to existing array
+      await updateDoc(bookingRef, {
+        bookings: arrayUnion(newBooking)
+      });
+    }
+    
+    return newBooking;
   } catch (error) {
     console.error('Error saving booking:', error);
     throw error;
@@ -57,16 +72,22 @@ export async function getExistingBooking(projectId) {
     
     if (bookingDoc.exists()) {
       const data = bookingDoc.data();
-      const createdAt = data.createdAt?.toDate();
+      const bookings = data.bookings || [];
       
-      if (createdAt) {
-        const fiveDaysAgo = new Date();
-        fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-        
-        if (createdAt > fiveDaysAgo) {
-          return data;
-        }
-      }
+      // Find the most recent valid booking
+      const validBooking = bookings
+        .filter(booking => {
+          const createdAt = booking.createdAt?.toDate();
+          if (createdAt) {
+            const fiveDaysAgo = new Date();
+            fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+            return createdAt > fiveDaysAgo;
+          }
+          return false;
+        })
+        .sort((a, b) => b.createdAt?.toDate() - a.createdAt?.toDate())[0];
+
+      return validBooking || null;
     }
     return null;
   } catch (error) {

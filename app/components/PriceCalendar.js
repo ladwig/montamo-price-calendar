@@ -81,7 +81,7 @@ export default function PriceCalendar({ basePrice, isAuthenticated, projectId, e
           </h3>
           <p className="text-success">
             Sie haben die KW {selectedWeek} ({bookedWeek.startDate} - {bookedWeek.endDate}) 
-            für Ihre Installation reserviert. Die Reservierung ist 7 Tage gültig.
+            für Ihre Installation reserviert. Die Reservierung ist 7 Tage gültig. Wir melden uns schnellstmöglich mit einem aktualsierten Angebot und Terminbestätigung zurück.
           </p>
         </div>
       </div>
