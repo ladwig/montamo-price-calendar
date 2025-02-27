@@ -6,12 +6,14 @@ import WeekCardsView from './WeekCardsView';
 import SelectedWeekSection from './SelectedWeekSection';
 import Spinner from './Spinner';
 import { calculatePrice } from '../utils/priceCalculations';
+import { saveBooking } from '../lib/firebase';
 
-export default function PriceCalendar({ basePrice, isAuthenticated }) {
+export default function PriceCalendar({ basePrice, isAuthenticated, projectId, existingBooking }) {
   const [priceMatrix, setPriceMatrix] = useState({});
   const [disabledWeeks, setDisabledWeeks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState(null);
+  const [bookingStatus, setBookingStatus] = useState(null);
 
   useEffect(() => {
     const fetchPriceMatrix = async () => {
@@ -20,6 +22,12 @@ export default function PriceCalendar({ basePrice, isAuthenticated }) {
         const data = await response.json();
         setPriceMatrix(data.priceMatrix);
         setDisabledWeeks(data.disabledWeeks);
+        
+        // If there's an existing booking, select that week
+        if (existingBooking) {
+          setSelectedWeek(existingBooking.weekNumber);
+          setBookingStatus('confirmed');
+        }
       } catch (error) {
         console.error('Error fetching price matrix:', error);
       } finally {
@@ -28,29 +36,54 @@ export default function PriceCalendar({ basePrice, isAuthenticated }) {
     };
 
     fetchPriceMatrix();
-  }, []);
+  }, [existingBooking]);
 
   const handleWeekSelect = (weekNumber) => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || bookingStatus === 'confirmed') {
       return;
     }
     setSelectedWeek(weekNumber);
   };
 
-  const handleBooking = (weekNumber) => {
-    if (!isAuthenticated) {
+  const handleBooking = async (weekNumber) => {
+    if (!isAuthenticated || !projectId) {
       return;
     }
-    // Handle booking logic here
-    console.log('Booking week:', weekNumber, {
-      price: calculatePrice(priceMatrix[weekNumber], basePrice)
-    });
+
+    try {
+      setBookingStatus('processing');
+      const weekData = priceMatrix[weekNumber];
+      const price = calculatePrice(weekData, basePrice);
+      
+      await saveBooking(projectId, weekData, weekNumber, price);
+      setBookingStatus('confirmed');
+    } catch (error) {
+      console.error('Error booking week:', error);
+      setBookingStatus('error');
+    }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <Spinner />
+      </div>
+    );
+  }
+
+  if (bookingStatus === 'confirmed') {
+    const bookedWeek = priceMatrix[selectedWeek];
+    return (
+      <div className="space-y-8">
+        <div className="bg-success/20 border border-success rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-success mb-2">
+            Installationswoche erfolgreich reserviert
+          </h3>
+          <p className="text-success">
+            Sie haben die KW {selectedWeek} ({bookedWeek.startDate} - {bookedWeek.endDate}) 
+            für Ihre Installation reserviert. Die Reservierung ist 7 Tage gültig.
+          </p>
+        </div>
       </div>
     );
   }
@@ -72,6 +105,8 @@ export default function PriceCalendar({ basePrice, isAuthenticated }) {
           weekData={priceMatrix[selectedWeek]}
           basePrice={parseInt(basePrice)}
           onBook={handleBooking}
+          isProcessing={bookingStatus === 'processing'}
+          error={bookingStatus === 'error'}
         />
       )}
 

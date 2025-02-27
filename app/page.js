@@ -8,7 +8,7 @@ import PriceCalendar from './components/PriceCalendar';
 import Footer from './components/Footer';
 import Spinner from './components/Spinner';
 import { fetchProjectData } from './lib/api';
-import { handleCustomToken, auth } from './lib/firebase';
+import { handleCustomToken, auth, getExistingBooking } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 function HomeContent() {
@@ -17,6 +17,7 @@ function HomeContent() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [existingBooking, setExistingBooking] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -30,6 +31,10 @@ function HomeContent() {
             setIsAuthenticated(true);
             const data = await fetchProjectData(idToken);
             setProjectData(data);
+            
+            // Check for existing booking
+            const booking = await getExistingBooking(data.id);
+            setExistingBooking(booking);
           } catch (tokenError) {
             console.error('Error with new token:', tokenError);
             // If token fails and we have an existing session, use that instead
@@ -39,6 +44,10 @@ function HomeContent() {
               const idToken = await user.getIdToken();
               const data = await fetchProjectData(idToken);
               setProjectData(data);
+              
+              // Check for existing booking
+              const booking = await getExistingBooking(data.id);
+              setExistingBooking(booking);
             } else {
               throw tokenError; // Re-throw if we have no fallback
             }
@@ -49,6 +58,10 @@ function HomeContent() {
           const idToken = await user.getIdToken();
           const data = await fetchProjectData(idToken);
           setProjectData(data);
+          
+          // Check for existing booking
+          const booking = await getExistingBooking(data.id);
+          setExistingBooking(booking);
         }
       } catch (error) {
         console.error('Authentication error:', error);
@@ -101,6 +114,8 @@ function HomeContent() {
         <PriceCalendar 
           basePrice={isAuthenticated ? projectData?.amount : null}
           isAuthenticated={isAuthenticated}
+          projectId={projectData?.id}
+          existingBooking={existingBooking}
         />
 
         {!isAuthenticated && (

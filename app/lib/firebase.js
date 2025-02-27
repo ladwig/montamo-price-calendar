@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { getAuth, signInWithCustomToken, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -30,6 +30,48 @@ export async function handleCustomToken(token) {
   } catch (error) {
     console.error('Error signing in with custom token:', error);
     throw error;
+  }
+}
+
+export async function saveBooking(projectId, weekData, selectedWeek, price) {
+  try {
+    const bookingRef = doc(db, 'price-calendar-bookings', projectId);
+    await setDoc(bookingRef, {
+      weekNumber: selectedWeek,
+      startDate: weekData.startDate,
+      endDate: weekData.endDate,
+      price: price,
+      createdAt: serverTimestamp(),
+    });
+    return true;
+  } catch (error) {
+    console.error('Error saving booking:', error);
+    throw error;
+  }
+}
+
+export async function getExistingBooking(projectId) {
+  try {
+    const bookingRef = doc(db, 'price-calendar-bookings', projectId);
+    const bookingDoc = await getDoc(bookingRef);
+    
+    if (bookingDoc.exists()) {
+      const data = bookingDoc.data();
+      const createdAt = data.createdAt?.toDate();
+      
+      if (createdAt) {
+        const fiveDaysAgo = new Date();
+        fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+        
+        if (createdAt > fiveDaysAgo) {
+          return data;
+        }
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting booking:', error);
+    return null;
   }
 }
 

@@ -2,7 +2,7 @@ import { calculatePrice } from '../utils/priceCalculations';
 import { format, parse } from 'date-fns';
 import { de } from 'date-fns/locale';
 
-export default function SelectedWeekSection({ weekNumber, weekData, basePrice, onBook }) {
+export default function SelectedWeekSection({ weekNumber, weekData, basePrice, onBook, isProcessing, error }) {
   const getWeekDateRange = (week) => {
     if (!week || !week.startDate) return '';
     
@@ -38,12 +38,22 @@ export default function SelectedWeekSection({ weekNumber, weekData, basePrice, o
           <p className="text-xs text-gray-500 mt-2 max-w-xl">
             * Buchung ist 7 Tage lang gültig, in dieser Zeit muss der Vertragabschluss erfolgen.
           </p>
+          {error && (
+            <p className="text-sm text-danger mt-2">
+              Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
+            </p>
+          )}
         </div>
         <button
-          className="bg-primary hover:bg-primary/90 text-secondary px-6 py-2 rounded-md font-semibold transition-colors"
+          className={`px-6 py-2 rounded-md font-semibold transition-colors ${
+            isProcessing 
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-primary hover:bg-primary/90 text-secondary'
+          }`}
           onClick={() => onBook(weekNumber)}
+          disabled={isProcessing}
         >
-          Buchen
+          {isProcessing ? 'Wird gebucht...' : 'Buchen'}
         </button>
       </div>
     </div>
