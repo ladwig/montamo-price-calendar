@@ -11,15 +11,10 @@ import { handleMagicLink } from './lib/firebase';
 
 function HomeContent() {
   const searchParams = useSearchParams();
-  const [origin, setOrigin] = useState('');
   const [projectData, setProjectData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
 
   useEffect(() => {
     async function handleAuth() {
@@ -81,55 +76,19 @@ function HomeContent() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="container mx-auto px-4 py-8 flex-grow">
-        <Header 
-          customerName={projectData?.properties?.customer_name}
-          dealId={projectData?.id}
-          location={projectData?.properties?.location}
-          isAuthenticated={isAuthenticated}
-        />
+        <Header />
         
-        {isAuthenticated && (
-          <CustomerMessage basePrice={projectData?.properties?.amount} />
+        {isAuthenticated && projectData && (
+          <CustomerMessage 
+            basePrice={projectData.amount} 
+            customerName={projectData.customerName}
+          />
         )}
         
         <PriceCalendar 
-          basePrice={isAuthenticated ? projectData?.properties?.amount : null}
-          customerName={projectData?.properties?.customer_name}
-          dealId={projectData?.id}
-          location={projectData?.properties?.location}
+          basePrice={isAuthenticated ? projectData?.amount : null}
           isAuthenticated={isAuthenticated}
         />
-
-        {isAuthenticated && projectData && (
-          <div className="mt-8 p-4 bg-white rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold text-secondary mb-4">Projektdetails</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium text-secondary">Geräte</h4>
-                <ul className="mt-2 space-y-2 text-sm">
-                  <li>Außengerät: {projectData.properties?.outdoor_unit}</li>
-                  <li>Inneneinheit: {projectData.properties?.inneneinheit}</li>
-                  <li>Wassertank: {projectData.properties?.water_tank}</li>
-                  <li>Puffer: {projectData.properties?.buffer}</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-secondary">Dokumente</h4>
-                <ul className="mt-2 space-y-2 text-sm">
-                  {projectData.files?.heizlastberechnung && (
-                    <li>Heizlastberechnung</li>
-                  )}
-                  {projectData.files?.quote && (
-                    <li>Angebot</li>
-                  )}
-                  {projectData.files?.technicalVOC && (
-                    <li>Technische Vorprüfung</li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
 
         {!isAuthenticated && (
           <div className="mt-8 p-4 bg-primary/10 rounded-lg border border-primary">

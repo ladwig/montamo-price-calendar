@@ -6,7 +6,7 @@ import WeekCardsView from './WeekCardsView';
 import SelectedWeekSection from './SelectedWeekSection';
 import { calculatePrice } from '../utils/priceCalculations';
 
-export default function PriceCalendar({ basePrice, customerName, dealId, location, isAuthenticated }) {
+export default function PriceCalendar({ basePrice, isAuthenticated }) {
   const [priceMatrix, setPriceMatrix] = useState({});
   const [disabledWeeks, setDisabledWeeks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,9 +42,6 @@ export default function PriceCalendar({ basePrice, customerName, dealId, locatio
     }
     // Handle booking logic here
     console.log('Booking week:', weekNumber, {
-      customerName,
-      dealId,
-      location,
       price: calculatePrice(priceMatrix[weekNumber], basePrice)
     });
   };
