@@ -42,22 +42,19 @@ export default function WeekCardsView({ priceMatrix, disabledWeeks, basePrice, o
   };
 
   // Function to get the background color class based on status
-  const getBackgroundColorClass = (status) => {
-    switch (status) {
-      case 'success':
-        return 'bg-success/20 border-success text-success hover:bg-success/30';
-      case 'warning':
-        return 'bg-warning/20 border-warning text-warning hover:bg-warning/30';
-      case 'danger':
-        return 'bg-danger/20 border-danger text-danger hover:bg-danger/30';
-      default:
-        return 'bg-white border-gray-200 text-secondary';
+  const getBackgroundColorClass = (percentage) => {
+    if (percentage >= 10) {
+      return 'bg-danger/20 border-danger text-danger hover:bg-danger/30'; // Red for +10% or more
+    } else if (percentage <= -10) {
+      return 'bg-success/20 border-success text-success hover:bg-success/30'; // Green for -10% or more
+    } else {
+      return 'bg-warning/20 border-warning text-warning hover:bg-warning/30'; // Orange for between +5% and -5%
     }
   };
 
   // Function to get the percentage indicator
   const getPercentageIndicator = (percentage) => {
-    if (percentage === 0) return '';
+    if (percentage === 0) return 'Standard'; // Show "Standard" for 0% discount
     return percentage > 0 ? `+${percentage}%` : `${percentage}%`;
   };
 
@@ -74,10 +71,10 @@ export default function WeekCardsView({ priceMatrix, disabledWeeks, basePrice, o
   const weeks = Object.keys(priceMatrix).sort((a, b) => parseInt(a) - parseInt(b));
 
   return (
-    <div className="mt-4 bg-white rounded-lg shadow-md p-4">
-      <h2 className="text-lg font-semibold text-secondary mb-3">Kalenderwochen Übersicht</h2>
+    <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-xl font-semibold text-secondary mb-6">Kalenderwochen Übersicht</h2>
       
-      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-13 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {weeks.map((weekNumber) => {
           const weekData = priceMatrix[weekNumber];
           const isDisabled = disabledWeeks.includes(parseInt(weekNumber));
@@ -87,10 +84,10 @@ export default function WeekCardsView({ priceMatrix, disabledWeeks, basePrice, o
             <div
               key={weekNumber}
               className={`
-                relative rounded-md p-2 border transition-all cursor-pointer
+                relative rounded-md p-1 border transition-all cursor-pointer
                 ${isDisabled ? 'bg-gray-100 border-gray-200 text-disabled opacity-60 cursor-not-allowed' : 
                   isSelected ? 'bg-white border-primary text-secondary shadow-sm' : 
-                  getBackgroundColorClass(weekData.status)}
+                  getBackgroundColorClass(weekData.percentage)}
                 ${!isDisabled && !isSelected ? 'hover:border-primary hover:shadow-sm' : ''}
               `}
               onClick={() => handleWeekSelect(weekNumber)}
