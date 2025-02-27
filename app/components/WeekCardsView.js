@@ -7,7 +7,7 @@ import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { calculatePrice, formatPercentage } from '../utils/priceCalculations';
 
-function WeekCard({ week, weekNumber, isSelected, isPastWeek, onSelect, onHover }) {
+function WeekCard({ week, weekNumber, isSelected, isPastWeek, onSelect, onHover, isAuthenticated }) {
   const isDisabled = week.isDisabled || isPastWeek || week.availability <= 0;
 
   const getBackgroundColorClass = (percentage) => {
@@ -29,8 +29,9 @@ function WeekCard({ week, weekNumber, isSelected, isPastWeek, onSelect, onHover 
         relative rounded-md p-2 transition-all cursor-pointer min-h-[5.5rem]
         ${isDisabled ? 'bg-gray-100 border border-gray-200 text-disabled opacity-60 cursor-not-allowed' : 
           getBackgroundColorClass(week.percentage)}
-        ${!isDisabled && !isSelected ? 'hover:border-primary' : ''}
-       
+        ${!isDisabled && !isSelected ? 'hover:border-primary hover:shadow-sm' : ''}
+        ${isSelected ? 'transform scale-[1.02]' : ''}
+        ${!isAuthenticated ? 'cursor-default' : ''}
       `}
       onClick={() => !isDisabled && onSelect(parseInt(weekNumber))}
       onMouseEnter={() => onHover(weekNumber)}
@@ -42,15 +43,23 @@ function WeekCard({ week, weekNumber, isSelected, isPastWeek, onSelect, onHover 
       
       {!isDisabled ? (
         <>
-          <div className="text-center text-xs mt-0.5">
-            {formatPercentage(week.percentage)}
-          </div>
-          <div className={`text-center font-medium text-xs mt-1 ${isSelected ? 'text-secondary' : ''}`}>
-            {calculatePrice(week, week.basePrice)}
-          </div>
-          <div className="text-center text-xs mt-0.5 text-gray-500">
-            {week.availability} verfügbar
-          </div>
+          {isAuthenticated ? (
+            <>
+              <div className="text-center text-xs mt-0.5">
+                {formatPercentage(week.percentage)}
+              </div>
+              <div className={`text-center font-medium text-xs mt-1 ${isSelected ? 'text-secondary' : ''}`}>
+                {calculatePrice(week, week.basePrice)}
+              </div>
+              <div className="text-center text-xs mt-0.5 text-gray-500">
+                {week.availability} verfügbar
+              </div>
+            </>
+          ) : (
+            <div className="text-center text-xs mt-1 flex-1 flex items-center justify-center">
+              {week.availability > 0 ? `${week.availability} verfügbar` : 'Ausgebucht'}
+            </div>
+          )}
         </>
       ) : (
         <div className="text-center text-xs mt-1 flex-1 flex items-center justify-center">
@@ -86,7 +95,7 @@ function Legend() {
   );
 }
 
-export default function WeekCardsView({ basePrice, onWeekSelect, selectedWeek }) {
+export default function WeekCardsView({ basePrice, onWeekSelect, selectedWeek, isAuthenticated }) {
   const [hoveredWeek, setHoveredWeek] = useState(null);
   const [weekData, setWeekData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -156,7 +165,7 @@ export default function WeekCardsView({ basePrice, onWeekSelect, selectedWeek })
 
   return (
     <div className="space-y-4">
-      <Legend />
+      {isAuthenticated && <Legend />}
 
       <div className="bg-white rounded-lg shadow-md p-4">
         <h2 className="text-lg font-semibold text-secondary mb-3">
@@ -177,6 +186,7 @@ export default function WeekCardsView({ basePrice, onWeekSelect, selectedWeek })
                   isPastWeek={isPastWeek}
                   onSelect={onWeekSelect}
                   onHover={setHoveredWeek}
+                  isAuthenticated={isAuthenticated}
                 />
                 
                 {hoveredWeek === weekNumber && !isPastWeek && !week.isDisabled && week.availability > 0 && (

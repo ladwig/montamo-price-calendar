@@ -7,6 +7,7 @@ import CustomerMessage from './components/CustomerMessage';
 import PriceCalendar from './components/PriceCalendar';
 import Footer from './components/Footer';
 import { fetchProjectData } from './lib/api';
+import { handleMagicLink } from './lib/firebase';
 
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -14,32 +15,44 @@ function HomeContent() {
   const [projectData, setProjectData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    
-    if (!token) {
-      setError('No authentication token provided');
-      setLoading(false);
-      return;
-    }
-
-    async function loadProjectData() {
+    async function handleAuth() {
       try {
+        // First, check if we're in the magic link flow
+        const magicLinkToken = await handleMagicLink();
+        if (magicLinkToken) {
+          setIsAuthenticated(true);
+          const data = await fetchProjectData(magicLinkToken);
+          setProjectData(data);
+          return;
+        }
+
+        // If not magic link, check for direct token
+        const token = searchParams.get('token');
+        setIsAuthenticated(!!token);
+        
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
         const data = await fetchProjectData(token);
         setProjectData(data);
       } catch (error) {
+        console.error('Authentication error:', error);
         setError('Failed to load project data. Please check your authentication link.');
       } finally {
         setLoading(false);
       }
     }
 
-    loadProjectData();
+    handleAuth();
   }, [searchParams]);
 
   if (loading) {
@@ -62,60 +75,68 @@ function HomeContent() {
     );
   }
 
-  if (!projectData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-secondary">Keine Projektdaten verfügbar</div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="container mx-auto px-4 py-8 flex-grow">
         <Header 
-          customerName={projectData.properties?.customer_name}
-          dealId={projectData.id}
-          location={projectData.properties?.location}
+          customerName={projectData?.properties?.customer_name}
+          dealId={projectData?.id}
+          location={projectData?.properties?.location}
+          isAuthenticated={isAuthenticated}
         />
         
-        <CustomerMessage basePrice={projectData.properties?.amount} />
+        {isAuthenticated && (
+          <CustomerMessage basePrice={projectData?.properties?.amount} />
+        )}
         
         <PriceCalendar 
-          basePrice={projectData.properties?.amount}
-          customerName={projectData.properties?.customer_name}
-          dealId={projectData.id}
-          location={projectData.properties?.location}
+          basePrice={isAuthenticated ? projectData?.properties?.amount : null}
+          customerName={projectData?.properties?.customer_name}
+          dealId={projectData?.id}
+          location={projectData?.properties?.location}
+          isAuthenticated={isAuthenticated}
         />
 
-        <div className="mt-8 p-4 bg-white rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-secondary mb-4">Projektdetails</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h4 className="font-medium text-secondary">Geräte</h4>
-              <ul className="mt-2 space-y-2 text-sm">
-                <li>Außengerät: {projectData.properties?.outdoor_unit}</li>
-                <li>Inneneinheit: {projectData.properties?.inneneinheit}</li>
-                <li>Wassertank: {projectData.properties?.water_tank}</li>
-                <li>Puffer: {projectData.properties?.buffer}</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-secondary">Dokumente</h4>
-              <ul className="mt-2 space-y-2 text-sm">
-                {projectData.files?.heizlastberechnung && (
-                  <li>Heizlastberechnung</li>
-                )}
-                {projectData.files?.quote && (
-                  <li>Angebot</li>
-                )}
-                {projectData.files?.technicalVOC && (
-                  <li>Technische Vorprüfung</li>
-                )}
-              </ul>
+        {isAuthenticated && projectData && (
+          <div className="mt-8 p-4 bg-white rounded-lg shadow-md">
+            <h3 className="text-lg font-semibold text-secondary mb-4">Projektdetails</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 className="font-medium text-secondary">Geräte</h4>
+                <ul className="mt-2 space-y-2 text-sm">
+                  <li>Außengerät: {projectData.properties?.outdoor_unit}</li>
+                  <li>Inneneinheit: {projectData.properties?.inneneinheit}</li>
+                  <li>Wassertank: {projectData.properties?.water_tank}</li>
+                  <li>Puffer: {projectData.properties?.buffer}</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-medium text-secondary">Dokumente</h4>
+                <ul className="mt-2 space-y-2 text-sm">
+                  {projectData.files?.heizlastberechnung && (
+                    <li>Heizlastberechnung</li>
+                  )}
+                  {projectData.files?.quote && (
+                    <li>Angebot</li>
+                  )}
+                  {projectData.files?.technicalVOC && (
+                    <li>Technische Vorprüfung</li>
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {!isAuthenticated && (
+          <div className="mt-8 p-4 bg-primary/10 rounded-lg border border-primary">
+            <h3 className="text-lg font-semibold text-secondary mb-2">Hinweis</h3>
+            <p className="text-secondary">
+              Um Preise zu sehen und Termine zu buchen, benötigen Sie einen gültigen Zugangslink. 
+              Bitte kontaktieren Sie Ihren Montamo-Berater.
+            </p>
+          </div>
+        )}
       </div>
       
       <Footer />

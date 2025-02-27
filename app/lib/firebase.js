@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAnalytics } from 'firebase/analytics';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,13 +14,28 @@ const firebaseConfig = {
 
 // Initialize Firebase
 let app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-let analytics;
-
-// Only initialize analytics on the client side
-if (typeof window !== 'undefined') {
-  analytics = getAnalytics(app);
-}
-
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-export { app, db, analytics }; 
+export async function handleMagicLink() {
+  try {
+    // Get the oobCode from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const oobCode = urlParams.get('oobCode');
+    const continueUrl = urlParams.get('continueUrl');
+    
+    if (oobCode && continueUrl) {
+      // Redirect to the continue URL with the oobCode as the token
+      const redirectUrl = new URL(continueUrl);
+      redirectUrl.searchParams.set('token', oobCode);
+      window.location.href = redirectUrl.toString();
+      return oobCode;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error handling magic link:', error);
+    throw error;
+  }
+}
+
+export { app, db, auth }; 

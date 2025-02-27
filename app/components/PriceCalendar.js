@@ -6,7 +6,7 @@ import WeekCardsView from './WeekCardsView';
 import SelectedWeekSection from './SelectedWeekSection';
 import { calculatePrice } from '../utils/priceCalculations';
 
-export default function PriceCalendar({ basePrice, customerName, dealId, location }) {
+export default function PriceCalendar({ basePrice, customerName, dealId, location, isAuthenticated }) {
   const [priceMatrix, setPriceMatrix] = useState({});
   const [disabledWeeks, setDisabledWeeks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,10 +30,16 @@ export default function PriceCalendar({ basePrice, customerName, dealId, locatio
   }, []);
 
   const handleWeekSelect = (weekNumber) => {
+    if (!isAuthenticated) {
+      return;
+    }
     setSelectedWeek(weekNumber);
   };
 
   const handleBooking = (weekNumber) => {
+    if (!isAuthenticated) {
+      return;
+    }
     // Handle booking logic here
     console.log('Booking week:', weekNumber, {
       customerName,
@@ -56,12 +62,13 @@ export default function PriceCalendar({ basePrice, customerName, dealId, locatio
       <WeekCardsView 
         priceMatrix={priceMatrix}
         disabledWeeks={disabledWeeks}
-        basePrice={parseInt(basePrice)}
+        basePrice={isAuthenticated ? parseInt(basePrice) : null}
         onWeekSelect={handleWeekSelect}
         selectedWeek={selectedWeek}
+        isAuthenticated={isAuthenticated}
       />
 
-      {selectedWeek && priceMatrix[selectedWeek] && (
+      {isAuthenticated && selectedWeek && priceMatrix[selectedWeek] && (
         <SelectedWeekSection 
           weekNumber={selectedWeek}
           weekData={priceMatrix[selectedWeek]}
