@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   
@@ -15,12 +17,12 @@ export default function Footer() {
           <div className="text-sm text-center md:text-right">
             <p>© {currentYear} Montamo GmbH. Alle Rechte vorbehalten.</p>
             <p className="mt-1">
-              <a href="#" className="text-primary hover:underline">Impressum</a> | 
-              <a href="#" className="text-primary hover:underline ml-2">Datenschutz</a>
+              <Link href="/imprint" className="text-primary hover:underline">Impressum</Link> | 
+              <Link href="/datenschutz" className="text-primary hover:underline ml-2">Datenschutz</Link>
             </p>
           </div>
         </div>
       </div>
     </footer>
   );
-} 
+}
