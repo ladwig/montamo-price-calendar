@@ -3,23 +3,20 @@
 import Link from 'next/link';
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-  
   return (
-    <footer className="w-full bg-secondary text-white py-6 mt-12">
+    <footer className="bg-white shadow-md py-6 mt-8">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <h3 className="text-primary font-bold text-xl">Montamo</h3>
-            <p className="text-sm mt-1">Ihr Experte für Wärmepumpen</p>
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="text-sm text-gray-600">
+            © {new Date().getFullYear()} Montamo. Alle Rechte vorbehalten.
           </div>
-          
-          <div className="text-sm text-center md:text-right">
-            <p>© {currentYear} Montamo GmbH. Alle Rechte vorbehalten.</p>
-            <p className="mt-1">
-              <Link href="/imprint" className="text-primary hover:underline">Impressum</Link> | 
-              <Link href="/datenschutz" className="text-primary hover:underline ml-2">Datenschutz</Link>
-            </p>
+          <div className="flex space-x-4">
+            <Link href="/imprint" className="text-sm text-secondary hover:text-primary transition-colors">
+              Impressum
+            </Link>
+            <Link href="/datenschutz" className="text-sm text-secondary hover:text-primary transition-colors">
+              Datenschutz
+            </Link>
           </div>
         </div>
       </div>
