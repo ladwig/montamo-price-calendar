@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-// import { Calendar } from './ui/calendar';  // Commented out for now
+import { parse } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { formatDate } from '../utils/formatting';
 import WeekCardsView from './WeekCardsView';
 import SelectedWeekSection from './SelectedWeekSection';
 import Spinner from './Spinner';
@@ -74,8 +76,8 @@ export default function PriceCalendar({ basePrice, isAuthenticated, projectId, e
   if (bookingStatus === 'confirmed') {
     const bookedWeek = priceMatrix[selectedWeek];
     const price = calculatePrice(bookedWeek, basePrice);
-    const startDate = format(parse(bookedWeek.startDate, 'yyyy-MM-dd', new Date()), 'dd.MM.yyyy', { locale: de });
-    const endDate = format(parse(bookedWeek.endDate, 'yyyy-MM-dd', new Date()), 'dd.MM.yyyy', { locale: de });
+    const startDate = formatDate(parse(bookedWeek.startDate, 'yyyy-MM-dd', new Date()), 'dd.MM.yyyy');
+    const endDate = formatDate(parse(bookedWeek.endDate, 'yyyy-MM-dd', new Date()), 'dd.MM.yyyy');
     
     return (
       <div className="space-y-8">

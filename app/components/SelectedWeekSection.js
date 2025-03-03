@@ -1,6 +1,6 @@
 import { calculatePrice } from '../utils/priceCalculations';
-import { format, parse } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { parse } from 'date-fns';
+import { formatDate } from '../utils/formatting';
 
 export default function SelectedWeekSection({ weekNumber, weekData, basePrice, onBook, isProcessing, error }) {
   const getWeekDateRange = (week) => {
@@ -10,7 +10,7 @@ export default function SelectedWeekSection({ weekNumber, weekData, basePrice, o
       const startDate = parse(week.startDate, 'yyyy-MM-dd', new Date());
       const endDate = parse(week.endDate, 'yyyy-MM-dd', new Date());
       
-      return `${format(startDate, 'dd.MM.', { locale: de })} - ${format(endDate, 'dd.MM.yyyy', { locale: de })}`;
+      return `${formatDate(startDate, 'dd.MM.')} - ${formatDate(endDate, 'dd.MM.yyyy')}`;
     } catch (error) {
       console.error('Error parsing dates:', error);
       return '';
@@ -58,4 +58,4 @@ export default function SelectedWeekSection({ weekNumber, weekData, basePrice, o
       </div>
     </div>
   );
-} 
+}
