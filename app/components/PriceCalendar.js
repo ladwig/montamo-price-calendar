@@ -73,6 +73,10 @@ export default function PriceCalendar({ basePrice, isAuthenticated, projectId, e
 
   if (bookingStatus === 'confirmed') {
     const bookedWeek = priceMatrix[selectedWeek];
+    const price = calculatePrice(bookedWeek, basePrice);
+    const startDate = format(parse(bookedWeek.startDate, 'yyyy-MM-dd', new Date()), 'dd.MM.yyyy', { locale: de });
+    const endDate = format(parse(bookedWeek.endDate, 'yyyy-MM-dd', new Date()), 'dd.MM.yyyy', { locale: de });
+    
     return (
       <div className="space-y-8">
         <div className="bg-success/20 border border-success rounded-lg p-4">
@@ -80,8 +84,9 @@ export default function PriceCalendar({ basePrice, isAuthenticated, projectId, e
             Installationswoche erfolgreich reserviert
           </h3>
           <p className="text-success">
-            Sie haben die KW {selectedWeek} ({bookedWeek.startDate} - {bookedWeek.endDate}) 
-            für Ihre Installation reserviert. Die Reservierung ist 7 Tage gültig. Wir melden uns schnellstmöglich mit einem aktualsierten Angebot und Terminbestätigung zurück.
+            Sie haben die KW {selectedWeek} ({startDate} bis {endDate}) reserviert. 
+            Die Installationswoche und der Preis von {price} ist 7 Tage bis zur Angebotsunterzeichnung gültig. 
+            Wir melden uns schnellstmöglich mit einem aktualsierten Angebot und Terminbestätigung zurück.
           </p>
         </div>
       </div>
@@ -146,4 +151,4 @@ export default function PriceCalendar({ basePrice, isAuthenticated, projectId, e
       */}
     </div>
   );
-} 
+}
