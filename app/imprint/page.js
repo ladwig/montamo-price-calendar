@@ -1,13 +1,20 @@
-import Footer from '../components/Footer';
+import Footer from '@/components/Footer';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Imprint | montamo',
+  description: 'Legal information and company details for montamo GmbH',
+};
 
 export default function Imprint() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="container mx-auto px-4 py-8 flex-grow">
-        <h1 className="text-3xl font-bold text-secondary mb-8">Impressum</h1>
+        <h1 className="text-3xl font-bold text-secondary mb-8">Imprint</h1>
         
         <div className="prose max-w-none">
           <div className="mb-8">
+            <h2 className="text-xl font-semibold text-secondary mb-4">Information according to § 5 TMG</h2>
             <p className="font-semibold">montamo GmbH</p>
             <p>Torstraße 19, 10119 Berlin, Germany</p>
             <p>Geschäftsführer: Alexander Böhm, Ole Schaumberg</p>
@@ -33,8 +40,8 @@ export default function Imprint() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-secondary mb-4">Urheberrecht</h2>
-            <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechts bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.</p>
+            <h2 className="text-xl font-semibold text-secondary mb-4">Copyright</h2>
+            <p>The content and works published on these pages are governed by German copyright law. Any duplication, processing, distribution, or any form of utilization beyond the scope of copyright law shall require the prior written consent of the respective author or creator.</p>
           </div>
         </div>
       </div>

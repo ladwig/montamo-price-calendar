@@ -9,7 +9,7 @@ export default function Privacy() {
         <div className="prose max-w-none">
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-secondary mb-4">Allgemeine Informationen</h2>
-            <p>Diese Datenschutzerklärung regelt die Erfassung, Nutzung und Offenlegung von personenbezogenen Daten durch die montamo GmbH im Zusammenhang mit der Nutzung der Website montamo.com (im Folgenden „Website" genannt).</p>
+            <p>Diese Datenschutzerklärung regelt die Erfassung, Nutzung und Offenlegung von personenbezogenen Daten durch die montamo GmbH im Zusammenhang mit der Nutzung der Website montamo.com (im Folgenden &quot;Website&quot; genannt).</p>
           </div>
 
           <div className="mb-8">
