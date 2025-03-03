@@ -3,11 +3,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-export const metadata = {
-  title: 'Datenschutzerklärung - Montamo',
-  description: 'Datenschutzrichtlinien und Informationen zur Datenverarbeitung der Montamo GmbH',
-};
-
 export default function Datenschutz() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
