@@ -48,19 +48,18 @@ export default function PriceCalendar({ basePrice, isAuthenticated, projectId, e
   };
 
   const handleBooking = async (weekNumber) => {
-    if (!isAuthenticated || !projectId) {
+    if (!isAuthenticated) {
+      console.error('User is not authenticated');
       return;
     }
-
+    setBookingStatus('processing');
     try {
-      setBookingStatus('processing');
       const weekData = priceMatrix[weekNumber];
       const price = calculatePrice(weekData, basePrice);
-      
       await saveBooking(projectId, weekData, weekNumber, price);
       setBookingStatus('confirmed');
     } catch (error) {
-      console.error('Error booking week:', error);
+      console.error('Error during booking:', error);
       setBookingStatus('error');
     }
   };
