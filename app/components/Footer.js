@@ -15,6 +15,12 @@ export default function Footer() {
             <Link href="/datenschutz" className="text-sm text-secondary hover:text-primary transition-colors">
               Datenschutz
             </Link>
+            <Link href="/nonexistent" className="text-sm text-secondary hover:text-primary transition-colors">
+              Nonexistent Page
+            </Link>
+            <Link href="/invalid" className="text-sm text-secondary hover:text-primary transition-colors">
+              Invalid Link
+            </Link>
           </div>
         </div>
       </div>
